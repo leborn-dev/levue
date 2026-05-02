@@ -1,3 +1,7 @@
+> **Notice:** This is **LeVue**, a [Leborn](https://github.com/leborn-dev) fork of Vue 2.x. We are reviving this project for the AI era. See [`LEBORN.md`](./LEBORN.md) and [`NOTICE`](./NOTICE) for details.
+
+---
+
 ## Vue 2 has reached End of Life
 
 **You are looking at the now inactive repository for Vue 2. The actively maintained repository for the latest version of Vue is [vuejs/core](https://github.com/vuejs/core).**
