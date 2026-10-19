@@ -50,6 +50,8 @@ jobs:
 
   e2e-test:
     runs-on: ubuntu-latest
+    env:
+      PUPPETEER_CACHE_DIR: ${{ runner.temp }}/puppeteer
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
 
@@ -63,6 +65,12 @@ jobs:
           cache: 'pnpm'
 
       - run: pnpm install --frozen-lockfile
+
+      # pnpm's cached lifecycle output does not include the browser cache.
+      - name: Install Puppeteer's pinned Chrome and system dependencies
+        run: |
+          sudo apt-get update
+          sudo env "PATH=$PATH" "PUPPETEER_CACHE_DIR=$PUPPETEER_CACHE_DIR" pnpm exec puppeteer browsers install chrome --install-deps
 
       - name: Run e2e tests
         run: pnpm run test:e2e
