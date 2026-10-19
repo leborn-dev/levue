@@ -83,6 +83,13 @@ export function setupPuppeteer() {
       ...currentOptions,
       count: clickCount ?? currentOptions.count
     })
+    // A dispatched input can precede native hashchange and Vue's DOM flush.
+    await page.evaluate(
+      () =>
+        new Promise<void>(resolve => {
+          requestAnimationFrame(() => resolve())
+        })
+    )
   }
 
   async function count(selector: string) {

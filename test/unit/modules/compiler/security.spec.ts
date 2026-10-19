@@ -1,6 +1,7 @@
 import Vue from 'vue'
 import { compile } from 'web/compiler/index'
 import { parseHTML } from 'compiler/parser/html-parser'
+import { defineReactive } from 'core/observer/index'
 
 // These inputs are data/ambient properties, not trusted template expressions.
 describe('compiler security boundaries', () => {
@@ -65,4 +66,43 @@ describe('compiler security boundaries', () => {
     vnode.children![0].data!.on!.click({ stopPropagation() {} })
     expect(vm.count).toBe(3)
   })
+})
+
+it('does not observe an inherited __proto__ as a reactive property value', () => {
+  const target = {}
+  const other = {}
+  try {
+    defineReactive(target, '__proto__')
+    Vue.set(other, '__levue_polluted__', true)
+    expect(
+      Object.prototype.hasOwnProperty.call(
+        Object.prototype,
+        '__levue_polluted__'
+      )
+    ).toBe(false)
+    expect(
+      Object.prototype.hasOwnProperty.call(Object.prototype, '__ob__')
+    ).toBe(false)
+    expect(Object.getPrototypeOf(target)).toBe(Object.prototype)
+    expect(target['__proto__']).toBeUndefined()
+    const inherited = Object.create({ normal: 3 })
+    defineReactive(inherited, 'normal')
+    expect(inherited.normal).toBe(3)
+    inherited.normal = 4
+    expect(inherited.normal).toBe(4)
+  } finally {
+    delete Object.prototype['__levue_polluted__']
+    delete Object.prototype['__ob__']
+  }
+})
+
+it('does not reuse inherited observer metadata when adding a property', () => {
+  const prototype = Vue.observable({ existing: true })
+  const child = Object.create(prototype)
+  Vue.set(child, 'ownField', 42)
+  expect(Object.prototype.hasOwnProperty.call(child, 'ownField')).toBe(true)
+  expect(Object.prototype.hasOwnProperty.call(prototype, 'ownField')).toBe(
+    false
+  )
+  expect(child.ownField).toBe(42)
 })

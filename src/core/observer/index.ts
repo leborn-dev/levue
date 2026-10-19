@@ -148,7 +148,8 @@ export function defineReactive(
     (!getter || setter) &&
     (val === NO_INITIAL_VALUE || arguments.length === 2)
   ) {
-    val = obj[key]
+    // Never turn the inherited prototype accessor into observed application data.
+    val = key === '__proto__' && !property ? undefined : obj[key]
   }
 
   let childOb = shallow ? val && val.__ob__ : observe(val, false, mock)
@@ -234,7 +235,8 @@ export function set(
     __DEV__ && warn(`Set operation on key "${key}" failed: target is readonly.`)
     return
   }
-  const ob = (target as any).__ob__
+  // Observer metadata belongs to its own value, never to an inherited object.
+  const ob = hasOwn(target, '__ob__') ? (target as any).__ob__ : undefined
   if (isArray(target) && isValidArrayIndex(key)) {
     target.length = Math.max(target.length, key)
     target.splice(key, 1, val)
