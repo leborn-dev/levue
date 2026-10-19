@@ -6,6 +6,8 @@ on:
   pull_request:
     branches:
       - main
+permissions:
+  contents: read
 jobs:
   unit-test:
     runs-on: ubuntu-latest
@@ -50,10 +52,11 @@ jobs:
 
   e2e-test:
     runs-on: ubuntu-latest
-    env:
-      PUPPETEER_CACHE_DIR: ${{ runner.temp }}/puppeteer
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+
+      - name: Set browser cache directory
+        run: printf 'PUPPETEER_CACHE_DIR=%s/puppeteer\n' "$RUNNER_TEMP" >> "$GITHUB_ENV"
 
       - name: Install pnpm
         uses: pnpm/action-setup@f520eceda224fe1a4aed5a2a27a194379a409996 # v6
