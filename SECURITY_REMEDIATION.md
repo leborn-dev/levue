@@ -45,6 +45,14 @@ Development migration includes Vitest 4, webpack 5, Puppeteer 25, a compatible j
 
 The SSR runtime's `serialize-javascript` 7.1.2 requires Node.js >=20.0.0. That requirement belongs to `packages/server-renderer/package.json` and its README. The root/browser `vue` package has no added Node engine restriction. Development tools were verified with Node 22.23.1; they have separate requirements.
 
+## Browser CDN dependencies
+
+The reorder benchmark now loads the exact `lodash@4.18.1` distribution, replacing 4.10.0. The old shipped script reproduced `_.merge` prototype pollution; the new distribution rejects the same input while retaining shuffle, keyed row selection, add and remove. This also avoids the reviewed affected ranges in [GHSA-r5fr-rjxr-66jc](https://github.com/advisories/GHSA-r5fr-rjxr-66jc) and [GHSA-f23m-r3pf-42rh](https://github.com/advisories/GHSA-f23m-r3pf-42rh).
+
+The Select2 wrapper now loads stable `select2@4.1.0` JavaScript and CSS and pins its jQuery dependency to 3.7.1. Select2 4.0.3 was affected by [CVE-2016-10744 / GHSA-rf66-hmqf-q3fc](https://github.com/advisories/GHSA-rf66-hmqf-q3fc), patched in 4.0.6. The sample does not configure the affected rich AJAX HTML templates; updating the shipped library removes the affected distribution without changing its Vue 2 props/input/watch/destroy contract. Correct the local Vue script path so the classic sample loads the built Vue distribution.
+
+All four CDN assets use versioned HTTPS jsDelivr npm URLs, SHA384 SRI and anonymous CORS, following [Select2's distribution guidance](https://select2.org/getting-started/installation/). Each response was byte-for-byte equal to its corresponding file in the official npm tarball, whose registry SHA512 integrity was separately verified. Reviewed GitHub Advisory Database package/version queries returned zero records for all three selected versions. The explicit network browser check exercises real selection/input updates, programmatic value/options updates, default label escaping and plugin destruction, as well as benchmark operations. It requires the built `dist/vue.min.js` and CDN access.
+
 ## Firebase example
 
 The old source configuration exactly matches the public upstream Vue v2.7.16 Firebase example. Firebase API keys identify a project and can be public only with appropriate API restrictions, Security Rules and App Check: [official guidance](https://firebase.google.com/docs/projects/api-keys). The old project's restrictions and rules were not inspected or assumed safe. No key or project was probed, changed or revoked.
@@ -57,6 +65,7 @@ Use Node 22.23.1 and pnpm 8.9.2 for the verified development environment. To use
 
 - `pnpm audit --json`
 - `pnpm run test:security`
+- `node --test test/security-cdn.cjs` (explicit CDN/browser integration; requires Chrome and `pnpm run build`)
 - `pnpm exec vitest run test/unit packages/compiler-sfc packages/server-renderer --maxWorkers=4`
 - `pnpm run ts-check` and `pnpm run test:types`
 - `pnpm run build`
