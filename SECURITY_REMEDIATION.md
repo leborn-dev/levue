@@ -20,6 +20,8 @@ Baseline: `leborn-dev/levue` main `6a10cadfba4f1d4792d8bcddb5c4b8059816156d`, wh
 
 The review classifications above are submitted for independent review, not silent alert dismissal. Vue explicitly documents that templates are executable source and must be trusted: [Vue 2 security guidance](https://github.com/vuejs/v2.vuejs.org/blob/master/src/v2/guide/security.md). Removing expression evaluation would break Vue 2's public API.
 
+Plaintext closing-tag parsing now separates a fixed-prefix search from a delimiter search. Both scan forward at most once; no variable-length suffix is retried and no global regular-expression state is introduced. Nine ordinary compatibility cases cover script/style/textarea content, comments/CDATA, case-insensitive closing tags with attributes, empty text callbacks, source positions, legacy textarea newlines, repeated parse calls and a bounded large valid document. Built browser distributions also pass an ES5 grammar check.
+
 Additional real fixes: serialize inferred SFC component names with `JSON.stringify`; preserve the original parsed module-source literal when rewriting reexports. A filename containing quotes previously produced invalid/injectable JavaScript; a quoted module path previously lost its escaping.
 
 ## Advisory coverage for the packages built here
@@ -28,7 +30,7 @@ Package-manager audit does not check a project's own package, so the GitHub Advi
 
 | Package/version | Reviewed source advisories | Coverage |
 | --- | --- | --- |
-| `vue@2.7.16` | [CVE-2024-9506 / GHSA-5j4c-8p2g-v4jx](https://github.com/advisories/GHSA-5j4c-8p2g-v4jx) | Anchor plaintext end-tag matching so malformed input cannot restart a lazy scan at every position. Reproduce the malformed script/textarea input before the fix. |
+| `vue@2.7.16` | [CVE-2024-9506 / GHSA-5j4c-8p2g-v4jx](https://github.com/advisories/GHSA-5j4c-8p2g-v4jx) | Find the fixed-length, case-insensitive closing prefix once, then find its delimiter once. This removes repeated suffix scanning while retaining plaintext callbacks, source positions, legacy newline handling and fallback behavior. Independent QA supplied the residual-performance evidence for the earlier anchored implementation; ordinary parser and public compiler fixtures verify compatibility. |
 | `vue-template-compiler@2.7.16` | [CVE-2024-6783 / GHSA-g3ch-rx76-35fx](https://github.com/advisories/GHSA-g3ch-rx76-35fx) | Parsed AST elements and attribute dictionaries have null prototypes. Tests poison ambient static/dynamic class/style and `v-if` metadata and verify it is absent from generated source. SSR shares the same parser. |
 | `vue-server-renderer@2.7.16` | No reviewed package-name advisories returned | Independently check shared compiler fixes and run string, stream, bundle, template, webpack and request-context regressions. Runtime dependency advisories are also included in full audit. |
 | `@vue/compiler-sfc@2.7.16` | No reviewed package-name advisories returned | Independently check filename/literal/ReDoS boundaries and run the complete SFC suite and public type generation. |

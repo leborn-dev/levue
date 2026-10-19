@@ -31,7 +31,13 @@ const conditionalComment = /^<!\[/
 
 // Special Elements (can contain anything)
 export const isPlainTextElement = makeMap('script,style,textarea', true)
-const reCache = {}
+// Fixed-length, non-global prefixes keep the search linear and independent
+// between parse calls. The closing delimiter is located separately below.
+const reCache = {
+  script: /<\/script/i,
+  style: /<\/style/i,
+  textarea: /<\/textarea/i
+}
 
 const decodingMap = {
   '&lt;': '<',
@@ -167,14 +173,16 @@ export function parseHTML(html, options: HTMLParserOptions) {
     } else {
       let endTagLength = 0
       const stackedTag = lastTag.toLowerCase()
-      const reStackedTag =
-        reCache[stackedTag] ||
-        (reCache[stackedTag] = new RegExp(
-          '^([\\s\\S]*?)(</' + stackedTag + '[^>]*>)',
-          'i'
-        ))
-      const rest = html.replace(reStackedTag, function (all, text, endTag) {
-        endTagLength = endTag.length
+      // Find the first matching prefix once, then scan for its first delimiter
+      // once, rather than retrying a variable-length suffix at later prefixes.
+      const endTagStart = html.search(reCache[stackedTag])
+      const endTagEnd =
+        endTagStart < 0
+          ? -1
+          : html.indexOf('>', endTagStart + stackedTag.length + 2)
+      if (endTagEnd >= 0) {
+        let text = html.substring(0, endTagStart)
+        endTagLength = endTagEnd + 1 - endTagStart
         if (!isPlainTextElement(stackedTag) && stackedTag !== 'noscript') {
           text = text
             .replace(/<!\--([\s\S]*?)-->/g, '$1') // #7298
@@ -186,10 +194,8 @@ export function parseHTML(html, options: HTMLParserOptions) {
         if (options.chars) {
           options.chars(text)
         }
-        return ''
-      })
-      index += html.length - rest.length
-      html = rest
+        advance(endTagEnd + 1)
+      }
       parseEndTag(stackedTag, index - endTagLength, index)
     }
 
