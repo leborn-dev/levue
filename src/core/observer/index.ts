@@ -257,7 +257,16 @@ export function set(
     return val
   }
   if (!ob) {
-    target[key] = val
+    if (key === '__proto__') {
+      Object.defineProperty(target, key, {
+        value: val,
+        enumerable: true,
+        writable: true,
+        configurable: true
+      })
+    } else {
+      target[key] = val
+    }
     return val
   }
   defineReactive(ob.value, key, val, undefined, ob.shallow, ob.mock)

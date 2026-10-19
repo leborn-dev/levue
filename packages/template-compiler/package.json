@@ -30,6 +30,6 @@
     "he": "^1.2.0"
   },
   "devDependencies": {
-    "vue": "file:../.."
+    "vue": "workspace:*"
   }
 }

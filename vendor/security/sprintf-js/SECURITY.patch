@@ -1,0 +1,19 @@
+--- a/src/sprintf.js
++++ b/src/sprintf.js
+@@ -84 +84 @@
+-                        arg = ph.precision ? parseFloat(arg).toExponential(ph.precision) : parseFloat(arg).toExponential()
++                        arg = ph.precision !== undefined ? parseFloat(arg).toExponential(ph.precision) : parseFloat(arg).toExponential()
+@@ -87 +87 @@
+-                        arg = ph.precision ? parseFloat(arg).toFixed(ph.precision) : parseFloat(arg)
++                        arg = ph.precision !== undefined ? parseFloat(arg).toFixed(ph.precision) : parseFloat(arg)
+@@ -90 +90 @@
+-                        arg = ph.precision ? String(Number(arg.toPrecision(ph.precision))) : parseFloat(arg)
++                        arg = ph.precision !== undefined ? String(Number(arg.toPrecision(ph.precision))) : parseFloat(arg)
+@@ -148,0 +149 @@
++        if (typeof fmt !== 'string' || fmt.length > 1048576) throw new SyntaxError('[sprintf] format is too large')
+@@ -157,0 +159,5 @@
++                if (match[6] && Number(match[6]) > 1048576) throw new SyntaxError('[sprintf] width exceeds 1048576')
++                if (match[7] !== undefined && /[efg]/.test(match[8])) {
++                    match[7] = Math.min(100, Number(match[7]))
++                    if (match[8] === 'g') match[7] = Math.max(1, match[7])
++                }

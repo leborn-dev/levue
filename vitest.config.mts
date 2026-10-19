@@ -1,7 +1,7 @@
 import { resolve as _resolve } from 'path'
 import { defineConfig } from 'vitest/config'
 
-const resolve = (p: string) => _resolve(__dirname, p)
+const resolve = (p: string) => _resolve(import.meta.dirname, p)
 
 export default defineConfig({
   resolve: {

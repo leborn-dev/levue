@@ -292,7 +292,8 @@ describe('compiler sfc: rewriteDefault', () => {
         ['typescript', 'decorators-legacy']
       )
     ).toMatchInlineSnapshot(`
-      "@Component({}) class HelloWorld extends Vue {
+      "@Component({})
+              class HelloWorld extends Vue {
                 test = "";
                 mounted() {
                   console.log("mounted!");

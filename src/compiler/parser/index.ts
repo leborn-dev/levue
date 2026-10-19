@@ -3,7 +3,7 @@ import { parseHTML } from './html-parser'
 import { parseText } from './text-parser'
 import { parseFilters } from './filter-parser'
 import { genAssignmentCode } from '../directives/model'
-import { extend, cached, no, camelize, hyphenate } from 'shared/util'
+import { extend, cached, no, camelize, hyphenate, hasOwn } from 'shared/util'
 import { isIE, isEdge, isServerRendering } from 'core/util/env'
 
 import {
@@ -69,15 +69,16 @@ export function createASTElement(
   attrs: Array<ASTAttr>,
   parent: ASTElement | void
 ): ASTElement {
-  return {
-    type: 1,
-    tag,
-    attrsList: attrs,
-    attrsMap: makeAttrsMap(attrs),
-    rawAttrsMap: {},
-    parent,
-    children: []
-  }
+  // Compiler metadata must never inherit ambient Object.prototype properties.
+  const element: ASTElement = Object.create(null)
+  element.type = 1
+  element.tag = tag
+  element.attrsList = attrs
+  element.attrsMap = makeAttrsMap(attrs)
+  element.rawAttrsMap = Object.create(null)
+  element.parent = parent
+  element.children = []
+  return element
 }
 
 /**
@@ -203,7 +204,7 @@ export function parse(template: string, options: CompilerOptions): ASTElement {
         { start: el.start }
       )
     }
-    if (el.attrsMap.hasOwnProperty('v-for')) {
+    if (hasOwn(el.attrsMap, 'v-for')) {
       warnOnce(
         'Cannot use v-for on stateful component root element because ' +
           'it renders multiple elements.',
@@ -942,7 +943,7 @@ function parseModifiers(name: string): Object | void {
 }
 
 function makeAttrsMap(attrs: Array<Record<string, any>>): Record<string, any> {
-  const map = {}
+  const map = Object.create(null)
   for (let i = 0, l = attrs.length; i < l; i++) {
     if (__DEV__ && map[attrs[i].name] && !isIE && !isEdge) {
       warn('duplicate attribute: ' + attrs[i].name, attrs[i])

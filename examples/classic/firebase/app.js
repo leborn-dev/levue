@@ -1,11 +1,12 @@
 var emailRE = /^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
 
-// Setup Firebase
-var config = {
-  apiKey: "AIzaSyAi_yuJciPXLFr_PYPeU3eTvtXf8jbJ8zw",
-  authDomain: "vue-demo-537e6.firebaseapp.com",
-  databaseURL: "https://vue-demo-537e6.firebaseio.com"
-}
+// Supply your own Firebase project configuration before loading this script.
+// See README.md; a shared third-party project must never be the default target.
+var config = window.FIREBASE_CONFIG
+if (!config) {
+  document.getElementById('firebase-status').textContent =
+    'Configure your own Firebase project as described in README.md to run this example.'
+} else {
 firebase.initializeApp(config)
 
 var usersRef = firebase.database().ref('users')
@@ -55,3 +56,5 @@ var app = new Vue({
     }
   }
 })
+
+}

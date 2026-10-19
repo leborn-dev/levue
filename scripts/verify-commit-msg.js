@@ -1,6 +1,17 @@
 const chalk = require('chalk')
 const msgPath = process.env.GIT_PARAMS
-const msg = require('fs').readFileSync(msgPath, 'utf-8').trim()
+const fs = require('fs')
+const expectedPath = require('child_process').execFileSync(
+  'git', ['rev-parse', '--git-path', 'COMMIT_EDITMSG'], { encoding: 'utf8' }
+).trim()
+let validPath = false
+try {
+  validPath = !!msgPath && fs.realpathSync(msgPath) === fs.realpathSync(expectedPath)
+} catch (_) {}
+if (!validPath) {
+  throw new Error('Invalid commit message path')
+}
+const msg = fs.readFileSync(expectedPath, 'utf-8').trim()
 
 const commitRE =
   /^(revert: )?(wip|release|feat|fix|polish|docs|style|refactor|perf|test|workflow|ci|chore|types|build)(\(.+\))?: .{1,50}/

@@ -2,7 +2,7 @@
 
 exports[`SFC analyze <script> bindings > auto name inference > basic 1`] = `
 "export default {
-  __name: 'FooBar',
+  __name: "FooBar",
   setup(__props) {
 const a = 1
 return { a }

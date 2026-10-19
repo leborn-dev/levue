@@ -1,4 +1,4 @@
-import { SpyInstance } from 'vitest'
+import { type MockInstance } from 'vitest'
 
 expect.extend({
   toHaveBeenWarned(received: string) {
@@ -87,8 +87,8 @@ expect.extend({
   }
 })
 
-let warn: SpyInstance
-let tip: SpyInstance
+let warn: MockInstance
+let tip: MockInstance
 const asserted: Set<string> = new Set()
 
 beforeEach(() => {

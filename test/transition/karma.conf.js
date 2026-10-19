@@ -1,5 +1,6 @@
 const featureFlags = require('../../scripts/feature-flags')
-process.env.CHROME_BIN = require('puppeteer').executablePath()
+// Puppeteer 25 resolves its installed browser asynchronously.
+// Karma accepts an async configuration function.
 
 const define = {
   __DEV__: `true`,
@@ -10,7 +11,9 @@ for (const key in featureFlags) {
   define[`process.env.${key}`] = String(featureFlags[key])
 }
 
-module.exports = function (config) {
+module.exports = async function (config) {
+  process.env.CHROME_BIN =
+    process.env.CHROME_BIN || (await require('puppeteer').executablePath())
   config.set({
     basePath: '.',
     frameworks: ['jasmine'],
