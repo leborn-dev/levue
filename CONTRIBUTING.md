@@ -5,7 +5,7 @@ Thanks for considering contributing! All Leborn projects share this guideline.
 ## Getting started
 
 1. Read the project's `LEBORN.md` and `NOTICE` files to understand provenance.
-2. Read the project's `README` for setup instructions.
+2. Read the project's `README` and [development setup](.github/CONTRIBUTING.md#development-setup) for the pinned Node and pnpm versions.
 3. Open an issue before starting significant work, so we can align on direction.
 
 ## Reporting issues

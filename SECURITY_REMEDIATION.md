@@ -45,6 +45,8 @@ Development migration includes Vitest 4, webpack 5, Puppeteer 25, a compatible j
 
 The SSR runtime's `serialize-javascript` 7.1.2 requires Node.js >=20.0.0. That requirement belongs to `packages/server-renderer/package.json` and its README. The root/browser `vue` package has no added Node engine restriction. Development tools were verified with Node 22.23.1; they have separate requirements.
 
+The original pnpm 8 lock embedded clone-specific absolute specifiers for the two local forks and failed frozen installation in another checkout. Migrate the existing lock to maintained [pnpm 10.34.7](https://github.com/pnpm/pnpm/releases/tag/v10.34.7), retaining relative `file:vendor/security/...` dependencies and overrides. The regenerated lock is verified from a source-only archive in a new directory with a dedicated empty store. Only esbuild, @parcel/watcher, Puppeteer and yorkie may run their necessary install scripts under pnpm 10; other dependency lifecycle scripts remain blocked by default. The explicit Node and package-manager versions are development pins and add no root Vue consumer engine requirement.
+
 ## Browser CDN dependencies
 
 The reorder benchmark now loads the exact `lodash@4.18.1` distribution, replacing 4.10.0. The old shipped script reproduced `_.merge` prototype pollution; the new distribution rejects the same input while retaining shuffle, keyed row selection, add and remove. This also avoids the reviewed affected ranges in [GHSA-r5fr-rjxr-66jc](https://github.com/advisories/GHSA-r5fr-rjxr-66jc) and [GHSA-f23m-r3pf-42rh](https://github.com/advisories/GHSA-f23m-r3pf-42rh).
@@ -61,7 +63,7 @@ Remove automatic connection to that shared third-party project. The example now 
 
 ## Reproduce validation
 
-Use Node 22.23.1 and pnpm 8.9.2 for the verified development environment. To use an existing browser, set `PUPPETEER_EXECUTABLE_PATH` to its executable. `PUPPETEER_SKIP_DOWNLOAD=1 pnpm install --frozen-lockfile` is suitable when that browser is supplied.
+Use Node 22.23.1 (`.nvmrc`) and pnpm 10.34.7 (`packageManager`) for the verified development environment. The development toolchain requires Node >=22.12 within the Node 22 line. All four CI jobs read that same Node pin and install with `--frozen-lockfile`. To use an existing browser, set `PUPPETEER_EXECUTABLE_PATH` to its executable. `PUPPETEER_SKIP_DOWNLOAD=1 pnpm install --frozen-lockfile` is suitable when that browser is supplied.
 
 - `pnpm audit --json`
 - `pnpm run test:security`

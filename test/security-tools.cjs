@@ -18,9 +18,15 @@ test('release notes reject paths before creating a file', () => {
   } finally { fs.rmSync(cwd, { recursive: true, force: true }) }
 })
 test('commit verification only reads Git COMMIT_EDITMSG', () => {
-  const result = spawnSync(process.execPath, ['scripts/verify-commit-msg.js'], { cwd: root, env: { ...process.env, GIT_PARAMS: 'package.json' }, encoding: 'utf8' })
-  assert.notEqual(result.status, 0)
-  assert.match(result.stderr, /Invalid commit message path/)
+  const cwd = fs.mkdtempSync(path.join(os.tmpdir(), 'vue-commit-invalid-'))
+  try {
+    assert.equal(spawnSync('git', ['init', '-q'], { cwd }).status, 0)
+    fs.writeFileSync(path.join(cwd, '.git/COMMIT_EDITMSG'), 'fix(security): preserve safe input boundaries\n')
+    fs.writeFileSync(path.join(cwd, 'package.json'), '{}\n')
+    const result = spawnSync(process.execPath, [path.join(root, 'scripts/verify-commit-msg.js')], { cwd, env: { ...process.env, GIT_PARAMS: 'package.json' }, encoding: 'utf8' })
+    assert.notEqual(result.status, 0)
+    assert.match(result.stderr, /Invalid commit message path/)
+  } finally { fs.rmSync(cwd, { recursive: true, force: true }) }
 })
 test('Firebase example requires an explicit project configuration', () => {
   let initialized = false

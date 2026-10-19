@@ -36,12 +36,14 @@ Hi! I'm really excited that you are interested in contributing to Vue.js. Before
 
 ## Development Setup
 
-You will need [Node.js](https://nodejs.org) **version 18+** and [pnpm](https://pnpm.io/) **version 8+**.
+Development requires [Node.js](https://nodejs.org) **22.12 or newer in the Node 22 line**. Use the exact version in `.nvmrc` (currently **22.23.1**) to match all four CI jobs. Use [pnpm](https://pnpm.io/) **10.34.7**, pinned in `package.json`'s `packageManager` field. For example, `nvm install && nvm use` selects Node, and `npm install --global pnpm@10.34.7` installs that pnpm release.
+
+These are development-tool requirements. The browser/root Vue package has no Node engine constraint; the SSR package separately requires Node >=20.0.0 for its runtime serializer.
 
 After cloning the repo, run:
 
 ```bash
-$ pnpm i # install the dependencies of the project
+$ pnpm install --frozen-lockfile # install the committed dependency graph
 ```
 
 ### Committing Changes
