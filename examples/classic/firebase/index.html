@@ -13,6 +13,7 @@
     <script src="https://unpkg.com/vuefire@1.3.0"></script>
   </head>
   <body>
+    <p id="firebase-status" role="status"></p>
     <div id="app">
       <ul is="transition-group">
         <li v-for="user in users" class="user" :key="user['.key']">

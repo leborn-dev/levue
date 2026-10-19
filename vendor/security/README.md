@@ -1,0 +1,5 @@
+# Reviewed security forks
+
+`braces` is the bounded 3.0.3 source fork developed in the Leng remediation and further checked in the Echoes remediation. `sprintf-js` is the bounded 1.1.3 source fork developed in Leng. Both retain upstream licenses and include `UPSTREAM.json`, integrity of the original npm tarball, and `SECURITY.patch`. Their private package names identify actual patched code; audit name changes alone are not the remediation.
+
+In this repository run `pnpm test:security:vendor`, `pnpm install --frozen-lockfile`, `pnpm audit`, and the complete unit/SFC/SSR/browser/type/build suite. The regression exercises public and direct braces entrypoints, supplied ASTs, range/Cartesian limits, normal behavior, and both sprintf source and generated minified entrypoints. See each fork's provenance for upstream comparison policy. On an upstream security fix compare the exact tarball and every patched/generated entry, rerun this suite, then remove the file overrides when upstream passes the same cases.

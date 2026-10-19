@@ -89,6 +89,7 @@ function getSize (code) {
 }
 
 function logError (e) {
+  process.exitCode = 1
   console.log(e)
 }
 

@@ -20,34 +20,26 @@ describe('e2e: svg', () => {
   // assert the shape of the polygon is correct
   async function assertPolygon(total: number) {
     expect(
-      await page().evaluate(
-        total => {
-          const points = globalStats
-            .map((stat, i) => {
-              const point = valueToPoint(stat.value, i, total)
-              return point.x + ',' + point.y
-            })
-            .join(' ')
-          return (
-            document.querySelector('polygon')!.attributes[0].value === points
-          )
-        },
-        [total]
-      )
+      await page().evaluate(total => {
+        const points = globalStats
+          .map((stat, i) => {
+            const point = valueToPoint(stat.value, i, total)
+            return point.x + ',' + point.y
+          })
+          .join(' ')
+        return document.querySelector('polygon')!.attributes[0].value === points
+      }, total)
     ).toBe(true)
   }
 
   // assert the position of each label is correct
   async function assertLabels(total: number) {
-    const positions = await page().evaluate(
-      total => {
-        return globalStats.map((stat, i) => {
-          const point = valueToPoint(+stat.value + 10, i, total)
-          return [point.x, point.y]
-        })
-      },
-      [total]
-    )
+    const positions = await page().evaluate(total => {
+      return globalStats.map((stat, i) => {
+        const point = valueToPoint(+stat.value + 10, i, total)
+        return [point.x, point.y]
+      })
+    }, total)
     for (let i = 0; i < total; i++) {
       const textPosition = await page().$eval(
         `text:nth-child(${i + 3})`,

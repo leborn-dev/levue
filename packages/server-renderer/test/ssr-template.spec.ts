@@ -20,6 +20,7 @@ async function generateClientManifest(file: string) {
       filename: '[name].js'
     },
     optimization: {
+      chunkIds: 'natural',
       runtimeChunk: {
         name: 'manifest'
       }
@@ -402,17 +403,17 @@ describe('SSR: template option', () => {
     // used chunks should have preload
     `<link rel="preload" href="/manifest.js" as="script">` +
     `<link rel="preload" href="/main.js" as="script">` +
-    `<link rel="preload" href="/0.js" as="script">` +
+    `<link rel="preload" href="/3.js" as="script">` +
     `<link rel="preload" href="/test.css" as="style">` +
     // images and fonts are only preloaded when explicitly asked for
     (options.preloadOtherAssets
-      ? `<link rel="preload" href="/test.png" as="image">`
-      : ``) +
-    (options.preloadOtherAssets
       ? `<link rel="preload" href="/test.woff2" as="font" type="font/woff2" crossorigin>`
       : ``) +
+    (options.preloadOtherAssets
+      ? `<link rel="preload" href="/test.png" as="image">`
+      : ``) +
     // unused chunks should have prefetch
-    (options.noPrefetch ? `` : `<link rel="prefetch" href="/1.js">`) +
+    (options.noPrefetch ? `` : `<link rel="prefetch" href="/2.js">`) +
     // css assets should be loaded
     `<link rel="stylesheet" href="/test.css">` +
     `</head><body>` +
@@ -424,7 +425,7 @@ describe('SSR: template option', () => {
     // manifest chunk should be first
     `<script src="/manifest.js" defer></script>` +
     // async chunks should be before main chunk
-    `<script src="/0.js" defer></script>` +
+    `<script src="/3.js" defer></script>` +
     `<script src="/main.js" defer></script>` +
     `</body></html>`
 

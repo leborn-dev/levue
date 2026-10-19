@@ -1,5 +1,9 @@
 import path from 'path'
-import puppeteer from 'puppeteer'
+import puppeteer, {
+  type Browser,
+  type Page,
+  type ClickOptions
+} from 'puppeteer'
 
 export function getExampleUrl(
   name: string,
@@ -37,8 +41,8 @@ export async function expectByPolling(
 }
 
 export function setupPuppeteer() {
-  let browser: puppeteer.Browser
-  let page: puppeteer.Page
+  let browser: Browser
+  let page: Page
 
   beforeAll(async () => {
     browser = await puppeteer.launch(puppeteerOptions)
@@ -56,7 +60,7 @@ export function setupPuppeteer() {
         const err = e.args()[0]
         console.error(
           `Error from Puppeteer-loaded page:\n`,
-          err._remoteObject.description
+          err.remoteObject().description
         )
       }
     })
@@ -70,8 +74,22 @@ export function setupPuppeteer() {
     await browser.close()
   })
 
-  async function click(selector: string, options?: puppeteer.ClickOptions) {
-    await page.click(selector, options)
+  async function click(
+    selector: string,
+    options?: ClickOptions & { clickCount?: number }
+  ) {
+    const { clickCount, ...currentOptions } = options || {}
+    await page.click(selector, {
+      ...currentOptions,
+      count: clickCount ?? currentOptions.count
+    })
+    // A dispatched input can precede native hashchange and Vue's DOM flush.
+    await page.evaluate(
+      () =>
+        new Promise<void>(resolve => {
+          requestAnimationFrame(() => resolve())
+        })
+    )
   }
 
   async function count(selector: string) {

@@ -25,8 +25,8 @@ function createSandbox(context?: any) {
 }
 
 function compileModule(files, basedir, runInNewContext) {
-  const compiledScripts = {}
-  const resolvedModules = {}
+  const compiledScripts = Object.create(null)
+  const resolvedModules = Object.create(null)
 
   function getCompiledScript(filename) {
     if (compiledScripts[filename]) {
@@ -42,7 +42,11 @@ function compileModule(files, basedir, runInNewContext) {
     return script
   }
 
-  function evaluateModule(filename, sandbox, evaluatedFiles = {}) {
+  function evaluateModule(
+    filename,
+    sandbox,
+    evaluatedFiles = Object.create(null)
+  ) {
     if (evaluatedFiles[filename]) {
       return evaluatedFiles[filename]
     }

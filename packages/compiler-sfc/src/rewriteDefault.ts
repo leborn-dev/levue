@@ -1,10 +1,9 @@
 import { parse, ParserPlugin } from '@babel/parser'
 import MagicString from 'magic-string'
 
-const defaultExportRE = /((?:^|\n|;)\s*)export(\s*)default/
-const namedDefaultExportRE = /((?:^|\n|;)\s*)export(.+)(?:as)?(\s*)default/s
+const defaultExportRE = /(^[^\S\n]*|;[^\S\n]*)export(\s*)default\b/m
 const exportDefaultClassRE =
-  /((?:^|\n|;)\s*)export\s+default\s+class\s+([\w$]+)/
+  /(^[^\S\n]*|;[^\S\n]*)export\s+default\s+class\s+([\w$]+)/m
 
 /**
  * Utility for rewriting `export default` in a script block into a variable
@@ -66,7 +65,10 @@ export function rewriteDefault(
             if (specifier.local.name === 'default') {
               const end = specifierEnd(input, specifier.local.end!, node.end)
               s.prepend(
-                `import { default as __VUE_DEFAULT__ } from '${node.source.value}'\n`
+                `import { default as __VUE_DEFAULT__ } from ${input.slice(
+                  node.source.start!,
+                  node.source.end!
+                )}\n`
               )
               s.overwrite(specifier.start!, end, ``)
               s.append(`\nconst ${as} = __VUE_DEFAULT__`)
@@ -77,7 +79,10 @@ export function rewriteDefault(
                 `import { ${input.slice(
                   specifier.local.start!,
                   specifier.local.end!
-                )} } from '${node.source.value}'\n`
+                )} } from ${input.slice(
+                  node.source.start!,
+                  node.source.end!
+                )}\n`
               )
               s.overwrite(specifier.start!, end, ``)
               s.append(`\nconst ${as} = ${specifier.local.name}`)
@@ -95,7 +100,11 @@ export function rewriteDefault(
 }
 
 export function hasDefaultExport(input: string): boolean {
-  return defaultExportRE.test(input) || namedDefaultExportRE.test(input)
+  // A conservative linear precheck; the parser resolves comments and reexports.
+  return (
+    defaultExportRE.test(input) ||
+    (/\bexport\s*[/\{]/.test(input) && /\bdefault\b/.test(input))
+  )
 }
 
 function specifierEnd(

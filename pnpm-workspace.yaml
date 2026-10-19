@@ -1,2 +1,11 @@
 packages:
   - 'packages/*'
+
+# Only these installed dependencies need lifecycle scripts.
+# esbuild installs its binary; @parcel/watcher preserves opt-in native builds.
+# Puppeteer provisions Chrome; yorkie installs the existing commit hooks.
+onlyBuiltDependencies:
+  - '@parcel/watcher'
+  - esbuild
+  - puppeteer
+  - yorkie

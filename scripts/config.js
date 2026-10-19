@@ -240,6 +240,8 @@ function genConfig(name) {
         entries: Object.assign({}, aliases, opts.alias)
       }),
       ts({
+        // picomatch's hardened extglob handling excludes the old ts+(|x) pattern.
+        include: /\.tsx?$/,
         tsconfig: path.resolve(__dirname, '../', 'tsconfig.json'),
         cacheRoot: path.resolve(__dirname, '../', 'node_modules/.rts2_cache'),
         tsconfigOverride: {

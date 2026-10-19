@@ -1174,9 +1174,12 @@ export function compileScript(
   // 11. finalize default export
   let runtimeOptions = ``
   if (!hasDefaultExportName && filename && filename !== DEFAULT_FILENAME) {
-    const match = filename.match(/([^/\\]+)\.\w+$/)
-    if (match) {
-      runtimeOptions += `\n  __name: '${match[1]}',`
+    const basename = filename.slice(
+      Math.max(filename.lastIndexOf('/'), filename.lastIndexOf('\\')) + 1
+    )
+    const dot = basename.lastIndexOf('.')
+    if (dot > 0 && /^\w+$/.test(basename.slice(dot + 1))) {
+      runtimeOptions += `\n  __name: ${JSON.stringify(basename.slice(0, dot))},`
     }
   }
   if (hasInlinedSsrRenderFn) {

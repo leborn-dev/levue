@@ -1,6 +1,7 @@
 const SourceMapConsumer = require('source-map').SourceMapConsumer
 
 const filenameRE = /\(([^)]+\.js):(\d+):(\d+)\)$/
+const bareFilenameRE = /^\s*at ([^()]+\.js):(\d+):(\d+)$/
 
 export function createSourceMapConsumers(rawMaps: Object) {
   const maps = {}
@@ -32,7 +33,8 @@ function rewriteTraceLine(
     [key: string]: typeof SourceMapConsumer
   }
 ) {
-  const m = trace.match(filenameRE)
+  const bare = trace.match(bareFilenameRE)
+  const m = trace.match(filenameRE) || bare
   const map = m && mapConsumers[m[1]]
   if (m != null && map) {
     const originalPosition = map.originalPositionFor({
@@ -45,7 +47,9 @@ function rewriteTraceLine(
         /^webpack:\/\/\//,
         ''
       )}:${String(line)}:${String(column)})`
-      return trace.replace(filenameRE, mappedPosition)
+      return bare
+        ? trace.replace(bareFilenameRE, '    at ' + mappedPosition)
+        : trace.replace(filenameRE, mappedPosition)
     } else {
       return trace
     }
